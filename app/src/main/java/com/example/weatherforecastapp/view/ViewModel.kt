@@ -11,4 +11,7 @@ class WeatherViewModel @Inject constructor(private val repository: WeatherReposi
    suspend fun getWeatherData(city: String):DataOrException<Weather,Boolean,Exception>{
        return repository.getWeather(city)
    }
+    suspend fun getNewWeatherData(city: String):DataOrException<NewWeather,Boolean,Exception>{
+        return repository.getNewWeather(city)
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.weatherforecastapp.network
 
 import com.example.weatherforecastapp.Constant
+import com.example.weatherforecastapp.Constant2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,5 +21,15 @@ class AppModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(WeatherApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNewWeatherApi() : NewWeatherApi {
+        return Retrofit.Builder()
+            .baseUrl(Constant2.URl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(NewWeatherApi::class.java)
     }
 }
