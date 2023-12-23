@@ -18,7 +18,7 @@ fun WeatherHost() {
         }
 
         composable(route = Screens.MainScreen.name){
-            MainScreen()
+            MainScreen(navController = navController)
         }
     }
 }

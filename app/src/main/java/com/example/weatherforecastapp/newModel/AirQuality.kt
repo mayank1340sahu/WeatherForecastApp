@@ -1,7 +1,7 @@
 package com.example.weatherforecastapp.newModel
 
 data class AirQuality(
-    val co: Int,
+    val co: Double,
     val gb_defra_index: Int,
     val no2: Double,
     val o3: Double,
