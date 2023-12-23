@@ -12,3 +12,13 @@ fun formatDate(dat : Int): String {
 fun formatDecimals(num: Double): String {
     return "%.0f".format(num)
 }
+
+fun formatTemp(K:Double): Double {
+return K-273.15
+}
+
+fun formatTime(dat: Int): String {
+    val params = SimpleDateFormat("hh:mm a")
+    val date = Date(dat.toLong()*1000)
+    return params.format(date)
+}

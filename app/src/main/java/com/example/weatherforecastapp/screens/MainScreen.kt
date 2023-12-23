@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,14 +40,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import com.example.weatherforecastapp.R
+import com.example.weatherforecastapp.model.Weather
 import com.example.weatherforecastapp.newModel.NewWeather
 import com.example.weatherforecastapp.utils.formatDate
 import com.example.weatherforecastapp.utils.formatDecimals
+import com.example.weatherforecastapp.utils.formatTemp
+import com.example.weatherforecastapp.utils.formatTime
 import com.example.weatherforecastapp.view.DataOrException
 import com.example.weatherforecastapp.view.WeatherViewModel
 
@@ -54,7 +57,7 @@ import com.example.weatherforecastapp.view.WeatherViewModel
 fun MainScreen(viewModel: WeatherViewModel = hiltViewModel(),navController: NavController) {
     Column {
         val weatherData =
-            produceState<DataOrException<NewWeather,Boolean,Exception>>(initialValue = DataOrException(loading = true))
+            produceState<DataOrException<Weather,Boolean,Exception>>(initialValue = DataOrException(loading = true))
             {
                 value = viewModel.getWeatherData("Raipur")
             }.value
@@ -71,10 +74,10 @@ fun MainScreen(viewModel: WeatherViewModel = hiltViewModel(),navController: NavC
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScaffold(weather: NewWeather,navController: NavController){
+fun MainScaffold(weather: Weather, navController: NavController){
     Scaffold(topBar = {WeatherAppBar(navController = navController,
         elevation = 4.dp,
-    title = weather.location.name + ",${weather.location.region} ${weather.location.country}"
+    title = weather.city.name + ",${weather.city.country}"
     )
     }) {
         MainContent(paddingValues = it,weather)
@@ -127,14 +130,14 @@ fun WeatherAppBar(
 
 
 @Composable
-fun MainContent(paddingValues: PaddingValues, weather: NewWeather) {
+fun MainContent(paddingValues: PaddingValues, weather: Weather) {
    Column(modifier = Modifier
        .padding(paddingValues)
        .fillMaxSize(),
        horizontalAlignment = Alignment.CenterHorizontally,
    verticalArrangement = Arrangement.Top) {
 
-       Text(text = formatDate(weather.location.localtime_epoch), style = MaterialTheme.typography.headlineSmall)
+       Text(text = formatDate(weather.list[0].dt), style = MaterialTheme.typography.headlineSmall)
 
        Surface(modifier = Modifier.size(200.dp),
        shape = CircleShape,
@@ -144,32 +147,37 @@ fun MainContent(paddingValues: PaddingValues, weather: NewWeather) {
            Column(horizontalAlignment = Alignment.CenterHorizontally,
            verticalArrangement = Arrangement.Center){
                WeatherImage(weather = weather)
-               Text(text = formatDecimals(weather.current.temp_c)+"ºC",
+               Text(text = formatDecimals(formatTemp(weather.list[0].temp.day))+"ºC",
                    style = MaterialTheme.typography.displayMedium)
-               Text(text = weather.current.condition.text, fontStyle = FontStyle.Italic)
+               Text(text = weather.list[0].weather[0].main, fontStyle = FontStyle.Italic)
            }
        }
        WeatherHumidity(weather = weather)
+       Divider()
+       SunState(weather = weather)
    }
 }
 
 @Composable
-fun WeatherImage(weather:NewWeather) {
-    val string = remember{ mutableStateOf("https:${weather.current.condition.icon}") }
-    Image(painter = rememberImagePainter(data = string.value),
+fun WeatherImage(weather: Weather) {
+    val string = "https://openweathermap.org/img/wn/${weather.list[0].weather[0].icon}.png"
+    Image(painter = rememberImagePainter(data = string),
         contentDescription ="Image", modifier = Modifier.size(80.dp))
 }
 
 @Composable
-fun WeatherHumidity(weather: NewWeather) {
-    Row(modifier = Modifier.fillMaxWidth().height(50.dp).padding(10.dp),
+fun WeatherHumidity(weather: Weather) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(50.dp)
+        .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.SpaceBetween) {
         Row() {
             Image( painter = painterResource(id = R.drawable.humidity),
                 contentDescription = "Humidity Icon",
             Modifier.size(20.dp))
-            Text(text = "${ weather.current.humidity }%", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "${ weather.list[0].humidity }%", style = MaterialTheme.typography.bodyLarge)
 
         }
         
@@ -177,7 +185,7 @@ fun WeatherHumidity(weather: NewWeather) {
             Image( painter = painterResource(id = R.drawable.thermometer),
                 contentDescription = "Humidity Icon",
                 Modifier.size(20.dp))
-            Text(text = "${ weather.current.pressure_mb } mb", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "${ weather.list[0].pressure } psl", style = MaterialTheme.typography.bodyLarge)
 
         }
         
@@ -185,8 +193,31 @@ fun WeatherHumidity(weather: NewWeather) {
             Image( painter = painterResource(id = R.drawable.wind),
                 contentDescription = "Humidity Icon",
                 Modifier.size(20.dp))
-            Text(text = "${ weather.current.wind_kph } kph", style = MaterialTheme.typography.bodyLarge)
+            Text(text = "${ weather.list[0].speed } kph", style = MaterialTheme.typography.bodyLarge)
 
+        }
+    }
+}
+
+@Composable
+fun SunState(weather: Weather) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(50.dp)
+        .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween) {
+        Row() {
+            Image( painter = painterResource(id = R.drawable.sunrise),
+                contentDescription = "Humidity Icon",
+                Modifier.size(20.dp))
+            Text(text = "${ formatTime(weather.list[0].sunrise) } ", style = MaterialTheme.typography.bodyLarge)
+        }
+        Row() {
+            Image( painter = painterResource(id = R.drawable.sunset),
+                contentDescription = "Humidity Icon",
+                Modifier.size(20.dp))
+            Text(text = "${formatTime( weather.list[0].sunset) } ", style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
