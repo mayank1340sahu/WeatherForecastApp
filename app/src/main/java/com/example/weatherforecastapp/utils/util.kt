@@ -12,7 +12,11 @@ fun formatDate(dat : Int): String {
 fun formatDecimals(num: Double): String {
     return "%.0f".format(num)
 }
-
+fun formatDay(dat : Int): String {
+    val pattern = SimpleDateFormat("EEE")
+    val date = Date(dat.toLong()*1000)
+    return pattern.format(date)
+}
 fun formatTemp(K:Double): Double {
 return K-273.15
 }

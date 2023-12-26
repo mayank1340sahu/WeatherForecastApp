@@ -36,34 +36,40 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherforecastapp.model.Weather
+import com.example.weatherforecastapp.navigation.Screens
 import com.example.weatherforecastapp.newModel.NewWeather
 import com.example.weatherforecastapp.screens.widgt.SunState
 import com.example.weatherforecastapp.screens.widgt.WeatherHumidity
 import com.example.weatherforecastapp.screens.widgt.WeatherImage
+import com.example.weatherforecastapp.screens.widgt.WeekWeather
 import com.example.weatherforecastapp.utils.formatDate
 import com.example.weatherforecastapp.utils.formatDecimals
 import com.example.weatherforecastapp.view.DataOrException
 import com.example.weatherforecastapp.view.WeatherViewModel
 
 @Composable
-fun MainScreen(viewModel: WeatherViewModel = hiltViewModel(),navController: NavController) {
+fun MainScreen(
+    viewModel: WeatherViewModel = hiltViewModel(),
+    navController: NavController,
+    city: String,
+) {
     Column {
         val weatherData =
             produceState<DataOrException<Weather,Boolean,Exception>>(initialValue = DataOrException(loading = true))
             {
-                value = viewModel.getWeatherData("Raipur")
+                value = viewModel.getWeatherData(city)
             }.value
 
         val newWeatherData =
             produceState<DataOrException<NewWeather,Boolean,Exception>>(initialValue = DataOrException(loading = true))
             {
-                value = viewModel.getNewWeatherData("Raipur")
+                value = viewModel.getNewWeatherData(city)
             }.value
 
-        if (newWeatherData.loading == true){
+        if (newWeatherData.loading == true && weatherData.loading == true){
             CircularProgressIndicator()
         }
-        else if(newWeatherData.data != null)
+        else if(newWeatherData.data != null && weatherData.data != null)
         {
             MainScaffold(weatherData.data!!, navController = navController,newWeatherData.data!!)
         }
@@ -72,7 +78,11 @@ fun MainScreen(viewModel: WeatherViewModel = hiltViewModel(),navController: NavC
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScaffold(weather: Weather, navController: NavController,newWeather: NewWeather){
+fun MainScaffold(
+    weather: Weather,
+    navController: NavController,
+    newWeather: NewWeather,
+){
     Scaffold(topBar = {WeatherAppBar(navController = navController,
         elevation = 4.dp,
     title = weather.city.name + ",${newWeather.location.region} ${newWeather.location.country}"
@@ -100,7 +110,7 @@ fun WeatherAppBar(
             title = { Text(text = title) },
             actions = {
                 if (isMainScreen) {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { navController.navigate(Screens.SearchScreen.name) }) {
                         Icon(
                             imageVector = Icons.Default.Search,
                             contentDescription = "Search button"
@@ -128,7 +138,11 @@ fun WeatherAppBar(
 
 
 @Composable
-fun MainContent(paddingValues: PaddingValues, weather: Weather,newWeather: NewWeather) {
+fun MainContent(
+    paddingValues: PaddingValues,
+    weather: Weather,
+    newWeather: NewWeather,
+) {
    Column(modifier = Modifier
        .padding(paddingValues)
        .fillMaxSize(),
@@ -144,7 +158,9 @@ fun MainContent(paddingValues: PaddingValues, weather: Weather,newWeather: NewWe
 
            Column(horizontalAlignment = Alignment.CenterHorizontally,
            verticalArrangement = Arrangement.Center){
-               WeatherImage(weather = weather,newWeather)
+               WeatherImage(
+                   "https://${newWeather.current.condition.icon}"
+               )
                Text(text = formatDecimals(newWeather.current.temp_c)+"ºC",
                    style = MaterialTheme.typography.displayMedium)
                Text(text = newWeather.current.condition.text, fontStyle = FontStyle.Italic)
@@ -153,6 +169,7 @@ fun MainContent(paddingValues: PaddingValues, weather: Weather,newWeather: NewWe
        WeatherHumidity(weather = weather)
        Divider()
        SunState(weather = weather)
+        WeekWeather(weather = weather)
    }
 }
 

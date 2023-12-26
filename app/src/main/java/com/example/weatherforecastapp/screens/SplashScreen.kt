@@ -31,7 +31,8 @@ import com.example.weatherforecastapp.navigation.Screens
 @Composable
 fun SplashScreen(host : NavController) {
     val scale = remember{ androidx.compose.animation.core.Animatable(0f) }
-    
+    val default = "Raipur"
+
     LaunchedEffect(key1 = true){
         scale.animateTo(
             targetValue = 0.9f,
@@ -40,7 +41,7 @@ fun SplashScreen(host : NavController) {
             easing = {OvershootInterpolator(8f)
                 .getInterpolation(it)
             }))
-        host.navigate(Screens.MainScreen.name)
+        host.navigate(Screens.MainScreen.name+"/$default")
     }
     
     Column(

@@ -3,10 +3,12 @@ package com.example.weatherforecastapp.screens.widgt
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,13 +32,15 @@ fun SunState(weather: Weather) {
             Image( painter = painterResource(id = R.drawable.sunrise),
                 contentDescription = "Humidity Icon",
                 Modifier.size(20.dp))
+            Spacer(modifier = Modifier.width(3.dp))
             Text(text = "${ formatTime(weather.list[0].sunrise) } ", style = MaterialTheme.typography.bodyLarge)
         }
         Row() {
+            Text(text = "${formatTime( weather.list[0].sunset) } ", style = MaterialTheme.typography.bodyLarge)
+            Spacer(modifier = Modifier.width(3.dp))
             Image( painter = painterResource(id = R.drawable.sunset),
                 contentDescription = "Humidity Icon",
                 Modifier.size(20.dp))
-            Text(text = "${formatTime( weather.list[0].sunset) } ", style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
