@@ -1,23 +1,28 @@
 package com.example.weatherforecastapp.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,11 +36,17 @@ import com.example.weatherforecastapp.navigation.Screens
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(navController: NavController) {
-    Scaffold(topBar = { WeatherAppBar(navController =navController,
-                            title = "Search", icon = Icons.Default.Search, isMainScreen = false)}) {
-                SearchBar(paddingValues = it, onSearch = { city ->
-                        navController.navigate(Screens.MainScreen.name+"/$city")
-                })
+   Surface(Modifier.fillMaxSize()) {
+        Scaffold(topBar = {
+            WeatherAppBar(
+                navController = navController,
+                title = "Search", icon = Icons.Default.ArrowBack, isMainScreen = false
+            )
+        }) {
+            SearchBar(paddingValues = it, onSearch = { city ->
+                navController.navigate(Screens.MainScreen.name + "/$city")
+            })
+        }
     }
 }
 
@@ -44,7 +55,7 @@ fun SearchScreen(navController: NavController) {
 fun SearchBar(paddingValues: PaddingValues,
               onSearch : (String) -> Unit
 ) {
-    Column() {
+    Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
         val searchQueryState = rememberSaveable {
             mutableStateOf("")
         }
@@ -73,7 +84,7 @@ fun CommonTextField(paddingValues: PaddingValues,
                     placeHolder:String,
                     imeAction: ImeAction = ImeAction.Next,
                     onAction: KeyboardActions = KeyboardActions.Default) {
-    TextField(value = valueState.value,
+    OutlinedTextField(value = valueState.value,
         onValueChange = {valueState.value = it},
         modifier = Modifier.padding(paddingValues = paddingValues),
         maxLines = 1,

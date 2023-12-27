@@ -25,7 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +41,7 @@ import com.example.weatherforecastapp.model.Weather
 import com.example.weatherforecastapp.navigation.Screens
 import com.example.weatherforecastapp.newModel.NewWeather
 import com.example.weatherforecastapp.screens.widgt.SunState
+import com.example.weatherforecastapp.screens.widgt.WeatherDropDownMenu
 import com.example.weatherforecastapp.screens.widgt.WeatherHumidity
 import com.example.weatherforecastapp.screens.widgt.WeatherImage
 import com.example.weatherforecastapp.screens.widgt.WeekWeather
@@ -67,13 +70,23 @@ fun MainScreen(
             }.value
 
         if (newWeatherData.loading == true && weatherData.loading == true){
-            CircularProgressIndicator()
+            Column(
+                Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){ CircularProgressIndicator() }
+        }
+        if(newWeatherData.data == null && weatherData.data == null){
+            Column() {
+                Text(text = "Not Found!")
+                Text(text = "Please check your internet")
+                Text(text = "if you are searching then check your spelling")
+            }
         }
         else if(newWeatherData.data != null && weatherData.data != null)
         {
             MainScaffold(weatherData.data!!, navController = navController,newWeatherData.data!!)
         }
-       
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,8 +116,15 @@ fun WeatherAppBar(
     onAddActionClicked : () -> Unit = {} ,
     onButtonClicked : () -> Unit = {}
 ) {
+    val dialog = remember{
+        mutableStateOf(false)
+    }
+    if (dialog.value){
+        WeatherDropDownMenu(dialog = dialog,navController = navController)
+    }
    Card(elevation = CardDefaults.cardElevation(elevation),
    modifier = Modifier.padding(6.dp)) {
+
         TopAppBar(
             colors = TopAppBarDefaults.mediumTopAppBarColors(containerColor = Color.White),
             title = { Text(text = title) },
@@ -116,7 +136,7 @@ fun WeatherAppBar(
                             contentDescription = "Search button"
                         )
                     }
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { dialog.value = true }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "More options"
@@ -136,7 +156,6 @@ fun WeatherAppBar(
     }
 }
 
-
 @Composable
 fun MainContent(
     paddingValues: PaddingValues,
@@ -148,6 +167,7 @@ fun MainContent(
        .fillMaxSize(),
        horizontalAlignment = Alignment.CenterHorizontally,
    verticalArrangement = Arrangement.Top) {
+
 
        Text(text = formatDate(weather.list[0].dt), style = MaterialTheme.typography.headlineSmall)
 
