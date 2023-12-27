@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Weather Forecast App</string>
-    <string name="About">Weather Forcast App version 0.1\n its a weather app created by mayank sahu\nAbout me :- i am a bca student from rajnandgaon\nknows android devlopment.\nfor bussiness queries :- \nmy email : mayanksahu34753@gmail.com\nwhatsapp number : 8319170490</string>
+    <string name="About"><b>Weather Forecast App version 0.1</b>\n its a weather app created by mayank sahu\nAbout me :- i am a bca student from rajnandgaon\nknows android development.\nfor business queries :- \nmy email : mayanksahu34753@gmail.com\nwhatsapp number : 8319170490</string>
 </resources>
