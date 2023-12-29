@@ -21,7 +21,7 @@ import com.example.weatherforecastapp.R
 fun AboutScreen(navController: NavHostController) {
     Scaffold (topBar = { WeatherAppBar(navController = navController,
         icon = Icons.Default.ArrowBack,
-    isMainScreen = false)}){ 
+    isMainScreen = false){navController.popBackStack()}}){
         Column(
             Modifier
                 .fillMaxSize()

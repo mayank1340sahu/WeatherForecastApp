@@ -1,5 +1,6 @@
 package com.example.weatherforecastapp.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -25,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -40,6 +44,8 @@ import androidx.navigation.NavController
 import com.example.weatherforecastapp.model.Weather
 import com.example.weatherforecastapp.navigation.Screens
 import com.example.weatherforecastapp.newModel.NewWeather
+import com.example.weatherforecastapp.room.Favorite
+import com.example.weatherforecastapp.room.RoomViewModel
 import com.example.weatherforecastapp.screens.widgt.SunState
 import com.example.weatherforecastapp.screens.widgt.WeatherDropDownMenu
 import com.example.weatherforecastapp.screens.widgt.WeatherHumidity
@@ -113,12 +119,15 @@ fun WeatherAppBar(
     isMainScreen : Boolean = true,
     elevation: Dp = 0.dp,
     navController: NavController,
+    favoriteViewModel : RoomViewModel = hiltViewModel(),
     onAddActionClicked : () -> Unit = {} ,
     onButtonClicked : () -> Unit = {}
 ) {
+    val favorite = favoriteViewModel.favList.collectAsState()
     val dialog = remember{
         mutableStateOf(false)
     }
+    val dataList = title.split(",")
     if (dialog.value){
         WeatherDropDownMenu(dialog = dialog,navController = navController)
     }
@@ -151,6 +160,21 @@ fun WeatherAppBar(
                         Icon(imageVector = icon, contentDescription =null)
                     }
                 }
+                if (isMainScreen&&favorite.value.contains(Favorite(dataList[0],dataList[1]))){
+                    Icon(imageVector = Icons.Default.Favorite,
+                        contentDescription = "Favourite Icon",
+                        tint = Color.Red
+                    )
+                }
+                else if (isMainScreen){
+                    Icon(imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = "Favourite Icon",
+                        tint = Color.Black,
+                        modifier = Modifier.clickable {
+                            favoriteViewModel.insertFavorite(Favorite(dataList[0],dataList[1]))
+                        }
+                    )
+                }
             },
         )
     }
@@ -167,7 +191,6 @@ fun MainContent(
        .fillMaxSize(),
        horizontalAlignment = Alignment.CenterHorizontally,
    verticalArrangement = Arrangement.Top) {
-
 
        Text(text = formatDate(weather.list[0].dt), style = MaterialTheme.typography.headlineSmall)
 
