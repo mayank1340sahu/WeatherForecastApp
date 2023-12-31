@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -41,6 +42,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.weatherforecastapp.model.Weather
 import com.example.weatherforecastapp.navigation.Screens
 import com.example.weatherforecastapp.newModel.NewWeather
@@ -123,9 +125,16 @@ fun WeatherAppBar(
     onAddActionClicked : () -> Unit = {} ,
     onButtonClicked : () -> Unit = {}
 ) {
+    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     val favorite = favoriteViewModel.favList.collectAsState()
     val dialog = remember{
         mutableStateOf(false)
+    }
+    val econ = remember {
+        mutableStateOf(Icons.Default.FavoriteBorder)
+    }
+    val color = remember {
+        mutableStateOf(Color.Black)
     }
     val dataList = title.split(",")
     if (dialog.value){
@@ -161,9 +170,15 @@ fun WeatherAppBar(
                     }
                 }
                 if (isMainScreen&&favorite.value.contains(Favorite(dataList[0],dataList[1]))){
-                    Icon(imageVector = Icons.Default.Favorite,
+                    Icon(imageVector = econ.value,
                         contentDescription = "Favourite Icon",
-                        tint = Color.Red
+                        tint = Color.Red,
+                        modifier = Modifier.clickable {
+                            econ.value = Icons.Default.FavoriteBorder
+                            favoriteViewModel.deleteFavorite(Favorite(dataList[0],dataList[1]))
+                           navController.navigate(Screens.MainScreen.name+"/${dataList[0]}")
+                            // Get the previous entry index
+                        }
                     )
                 }
                 else if (isMainScreen){
@@ -171,6 +186,8 @@ fun WeatherAppBar(
                         contentDescription = "Favourite Icon",
                         tint = Color.Black,
                         modifier = Modifier.clickable {
+                            econ.value = Icons.Default.Favorite
+                            color.value = Color.Red
                             favoriteViewModel.insertFavorite(Favorite(dataList[0],dataList[1]))
                         }
                     )

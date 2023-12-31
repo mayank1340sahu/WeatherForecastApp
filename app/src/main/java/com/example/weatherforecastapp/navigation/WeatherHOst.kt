@@ -35,7 +35,8 @@ fun WeatherHost() {
             }
         }
         composable(route = Screens.SearchScreen.name){
-           SearchScreen(navController = navController)
+            val viewModel = hiltViewModel<WeatherViewModel>()
+           SearchScreen(navController = navController,viewModel = viewModel)
         }
         composable(route = Screens.FavouriteScreen.name){
             FavoriteScreen(navController = navController)

@@ -32,10 +32,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.weatherforecastapp.navigation.Screens
+import com.example.weatherforecastapp.view.WeatherViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchScreen(navController: NavController) {
+fun SearchScreen(navController: NavController,viewModel: WeatherViewModel) {
    Surface(Modifier.fillMaxSize()) {
         Scaffold(topBar = {
             WeatherAppBar(
@@ -44,7 +45,8 @@ fun SearchScreen(navController: NavController) {
             )
         }) {
             SearchBar(paddingValues = it, onSearch = { city ->
-                navController.navigate(Screens.MainScreen.name + "/$city")
+                viewModel.cityState.value = city
+                navController.navigate(Screens.MainScreen.name + "/${viewModel.cityState.value}")
             })
         }
     }

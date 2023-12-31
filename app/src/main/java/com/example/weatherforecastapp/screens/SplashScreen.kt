@@ -24,14 +24,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.weatherforecastapp.R
 import com.example.weatherforecastapp.navigation.Screens
+import com.example.weatherforecastapp.view.WeatherViewModel
 
 @Composable
-fun SplashScreen(host : NavController) {
+fun SplashScreen(host : NavController,
+                 viewModel: WeatherViewModel = hiltViewModel()) {
     val scale = remember{ androidx.compose.animation.core.Animatable(0f) }
-    val default = "Raipur"
+    val default = viewModel.cityState.value
 
     LaunchedEffect(key1 = true){
         scale.animateTo(

@@ -7,13 +7,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,54 +22,83 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.example.weatherforecastapp.R
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.weatherforecastapp.navigation.Screens
 import com.example.weatherforecastapp.room.Favorite
 import com.example.weatherforecastapp.room.RoomViewModel
+import com.example.weatherforecastapp.view.WeatherViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteScreen(navController: NavHostController,
-                   favoriteViewModel : RoomViewModel = hiltViewModel(),
+fun FavoriteScreen(
+    navController: NavHostController,
+    favoriteViewModel: RoomViewModel = hiltViewModel(),
+    weatherViewModel: WeatherViewModel = hiltViewModel(),
 ) {
+    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     val favorite = favoriteViewModel.favList.collectAsState()
     Scaffold (topBar = { WeatherAppBar(navController = navController,
         icon = Icons.Default.ArrowBack,
-        isMainScreen = false){navController.popBackStack()}}){
+        isMainScreen = false){navController.navigate(Screens.MainScreen.name+"/${weatherViewModel.cityState.value}")}}){
         Column(
             Modifier
                 .fillMaxSize()
                 .padding(it),
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-          LazyColumn(content = {
-              items(favorite.value){fav ->
-                  Row(
+          LazyColumn {
+              items(favorite.value) { fav ->
+                  Card(
                       Modifier
-                          .height(45.dp)
+                          .height(100.dp)
                           .fillMaxWidth()
                           .padding(6.dp),
-                  verticalAlignment = Alignment.CenterVertically,
-                  horizontalArrangement = Arrangement.SpaceBetween) {
-                      Text(text = fav.city)
-                      Text(text = fav.country)
-                      Icon(imageVector = Icons.Default.Delete,
-                          contentDescription = "Delete",
-                          tint = MaterialTheme.colorScheme.primary,
-                      modifier = Modifier.clickable {
-                          favoriteViewModel.deleteFavorite(Favorite(fav.city,fav.country))
-                      })
+                      elevation = CardDefaults.cardElevation(6.dp),
+                      colors = CardDefaults.cardColors(Color.White)
+                  ) {
+                      Row(
+                          Modifier.fillMaxSize(),
+                          verticalAlignment = Alignment.CenterVertically,
+                          horizontalArrangement = Arrangement.SpaceBetween
+                      ) {
+                          Text(text = fav.city)
+                          Text(text = fav.country)
+                          Icon(imageVector = Icons.Default.Delete,
+                              contentDescription = "Delete",
+                              tint = MaterialTheme.colorScheme.primary,
+                              modifier = Modifier.clickable {
+                                  favoriteViewModel.deleteFavorite(Favorite(fav.city, fav.country))
+                                  navController.navigate(Screens.FavouriteScreen.name)
+
+                                  // Get the previous entry index
+                                  val previousEntryIndex = navController.backQueue.indexOf(currentBackStackEntry) - 1
+
+                                  // Check if there is a valid previous entry
+                                  if (previousEntryIndex >= 0) {
+                                      // Get the destination ID of the previous entry
+                                      val previousDestinationId = navController.backQueue[previousEntryIndex].destination.id
+
+                                      // Pop back stack up to the previous entry
+                                      currentBackStackEntry?.destination?.route?.let { it1 ->
+                                          navController.navigate(route = it1) {
+                                              popUpTo(previousDestinationId) {
+                                                  inclusive = true
+                                              }
+                                          }
+                                      }
+                                  }
+                              })
+                      }
                   }
               }
-          })
+          }
         }
     }
 }

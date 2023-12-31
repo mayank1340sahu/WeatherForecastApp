@@ -27,6 +27,19 @@ class RoomViewModel @Inject constructor(private val repository: RoomRepository) 
             }
         }
     }
+    fun updateFavorite(){
+        viewModelScope.launch {
+            repository.getAllFavorite().distinctUntilChanged().collect(){
+                if (it.isEmpty()){
+                    Log.d("favoriteList", "empty fav ")
+                }
+                else{
+                    _favList.value = it
+                    Log.d("FavoriteList", "${it}: ")
+                }
+            }
+        }
+    }
     fun insertFavorite(favorite: Favorite) = viewModelScope.launch { repository.addFavorite(favorite) }
     fun updateFavorite(favorite: Favorite) = viewModelScope.launch { repository.updateFavorite(favorite) }
     fun deleteFavorite(favorite: Favorite) = viewModelScope.launch { repository.deleteFavorite(favorite) }
