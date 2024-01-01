@@ -127,14 +127,9 @@ fun WeatherAppBar(
 ) {
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     val favorite = favoriteViewModel.favList.collectAsState()
+
     val dialog = remember{
         mutableStateOf(false)
-    }
-    val econ = remember {
-        mutableStateOf(Icons.Default.FavoriteBorder)
-    }
-    val color = remember {
-        mutableStateOf(Color.Black)
     }
     val dataList = title.split(",")
     if (dialog.value){
@@ -169,30 +164,29 @@ fun WeatherAppBar(
                         Icon(imageVector = icon, contentDescription =null)
                     }
                 }
-                if (isMainScreen&&favorite.value.contains(Favorite(dataList[0],dataList[1]))){
-                    Icon(imageVector = econ.value,
+                if (isMainScreen){
+                    if (favorite.value.contains(Favorite(dataList[0],dataList[1]))){
+                    Icon(imageVector = Icons.Default.Favorite,
                         contentDescription = "Favourite Icon",
                         tint = Color.Red,
                         modifier = Modifier.clickable {
-                            econ.value = Icons.Default.FavoriteBorder
                             favoriteViewModel.deleteFavorite(Favorite(dataList[0],dataList[1]))
                            navController.navigate(Screens.MainScreen.name+"/${dataList[0]}")
                             // Get the previous entry index
                         }
                     )
                 }
-                else if (isMainScreen){
+                else {
                     Icon(imageVector = Icons.Default.FavoriteBorder,
                         contentDescription = "Favourite Icon",
                         tint = Color.Black,
                         modifier = Modifier.clickable {
-                            econ.value = Icons.Default.Favorite
-                            color.value = Color.Red
                             favoriteViewModel.insertFavorite(Favorite(dataList[0],dataList[1]))
                         }
                     )
                 }
-            },
+            }
+                             },
         )
     }
 }

@@ -146,7 +146,6 @@ fun DayWeather(weather: WeatherItem) {
                 style = MaterialTheme.typography.bodyMedium,
             color = Color.DarkGray,
             modifier = Modifier.padding(3.dp))
-
         }
     }
 }
