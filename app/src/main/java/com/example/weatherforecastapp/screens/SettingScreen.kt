@@ -1,5 +1,6 @@
 package com.example.weatherforecastapp.screens
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -40,17 +42,18 @@ fun SettingScreen(navController: NavHostController) {
     val choiceState = rememberSaveable {
         mutableStateOf("")
     }
-    val unitToggleState = rememberSaveable {
-        mutableStateOf(false)
+    val unitToggleState :MutableState<Boolean?> = rememberSaveable {
+        mutableStateOf(null)
     }
     val units = unitViewModel.unitList.collectAsState().value
     if (units.isEmpty()){
-        unitViewModel.insertUnit(Unit(choices[1]))
+        unitToggleState.value = true
     }
     if (units.isNotEmpty()){
         unitToggleState.value = units[0].unit != "imperial"
     }
-
+    Log.d("ToggleState", "SettingScreen: $unitToggleState")
+    Log.d("Unit", "SettingScreen: $units")
     Scaffold (topBar = { WeatherAppBar(
         title = "Settings", icon = Icons.Default.ArrowBack,
         isMainScreen = false,
@@ -65,23 +68,28 @@ fun SettingScreen(navController: NavHostController) {
         ) {
            Text(text = "Change Unit of Measurement", fontSize = 20.sp, fontWeight = FontWeight.Medium)
             Spacer(modifier = Modifier.height(6.dp))
-
-            IconToggleButton(checked = !unitToggleState.value, onCheckedChange = { toggle ->
+            Log.d("ToggleStateInsideComposable", "SettingScreen: $unitToggleState")
+            IconToggleButton(checked = !unitToggleState.value!!, onCheckedChange = { toggle ->
                 unitToggleState.value = !toggle
-                if (unitToggleState.value){
+                if (unitToggleState.value!!){
                     choiceState.value = choices[1]
                 }
                 else{
                     choiceState.value = choices[0]
                 }
-            },Modifier.height(70.dp)
-                .width(200.dp)
+            },
+
+                Modifier
+                    .height(70.dp)
+                    .width(200.dp)
                    ) {
-                Column( Modifier
-                    .background(Color(0xFFAA00FF))
-                    .clip(RoundedCornerShape(23.dp))){
+                Log.d("ToggleStateAfterChecked", "SettingScreen: $unitToggleState")
+                Column(
+                    Modifier
+                        .background(Color(0xFFAA00FF))
+                        .clip(RoundedCornerShape(23.dp))){
                     Text(
-                        text = if (unitToggleState.value) {
+                        text = if (unitToggleState.value!!) {
                             "Celsius C"
                         } else {
                             "Fahrenheit F"
@@ -96,7 +104,9 @@ fun SettingScreen(navController: NavHostController) {
                 unitViewModel.deleteUnit(
                     unit = units[0]
                 )
+                Log.d("ToggleStateOnDelete", "SettingScreen: $unitToggleState")
                 unitViewModel.insertUnit(Unit(choiceState.value))
+                Log.d("ToggleStateOnInsert", "SettingScreen: $unitToggleState")
             }) {
                 Text(text = "Save")
             }
