@@ -64,7 +64,8 @@ fun FavoriteScreen(
                       Modifier
                           .height(100.dp)
                           .fillMaxWidth()
-                          .padding(6.dp),
+                          .padding(6.dp)
+                          .clickable { navController.navigate(Screens.MainScreen.name + "/${fav.city}") },
                       elevation = CardDefaults.cardElevation(6.dp),
                       colors = CardDefaults.cardColors(Color(0xFFAA00FF))
                   ) {
@@ -75,10 +76,10 @@ fun FavoriteScreen(
                       ) {
                           Text(text = fav.city,
                               color = Color.White,
-                              fontSize = 25.sp,
+                              fontSize = 20.sp,
                               fontWeight = FontWeight.Medium)
                           Text(text = fav.country, color = Color.White,
-                              fontSize = 25.sp,
+                              fontSize = 20.sp,
                               fontWeight = FontWeight.Medium)
                           Icon(imageVector = Icons.Default.Delete,
                               contentDescription = "Delete",
