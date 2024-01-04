@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -48,6 +47,7 @@ import com.example.weatherforecastapp.navigation.Screens
 import com.example.weatherforecastapp.newModel.NewWeather
 import com.example.weatherforecastapp.room.Favorite
 import com.example.weatherforecastapp.room.RoomViewModel
+import com.example.weatherforecastapp.room.UnitViewModel
 import com.example.weatherforecastapp.screens.widgt.SunState
 import com.example.weatherforecastapp.screens.widgt.WeatherDropDownMenu
 import com.example.weatherforecastapp.screens.widgt.WeatherHumidity
@@ -64,19 +64,34 @@ fun MainScreen(
     navController: NavController,
     city: String,
 ) {
+    val unitViewModel = hiltViewModel<UnitViewModel>()
+    val units = unitViewModel.unitList.collectAsState().value
+    if (units.isEmpty()){
+        unitViewModel.insertUnit(com.example.weatherforecastapp.room.Unit("imperial"))
+    }
+
     Column {
-        val weatherData =
-            produceState<DataOrException<Weather,Boolean,Exception>>(initialValue = DataOrException(loading = true))
-            {
-                value = viewModel.getWeatherData(city)
-            }.value
+        if (units.isNotEmpty()){
+            val isImperial = units[0].unit == "imperial"
+            val weatherData =
+                produceState<DataOrException<Weather, Boolean, Exception>>(
+                    initialValue = DataOrException(
+                        loading = true
+                    )
+                )
+                {
+                    value = viewModel.getWeatherData(city,units[0].unit)
+                }.value
 
-        val newWeatherData =
-            produceState<DataOrException<NewWeather,Boolean,Exception>>(initialValue = DataOrException(loading = true))
-            {
-                value = viewModel.getNewWeatherData(city)
-            }.value
-
+            val newWeatherData =
+                produceState<DataOrException<NewWeather, Boolean, Exception>>(
+                    initialValue = DataOrException(
+                        loading = true
+                    )
+                )
+                {
+                    value = viewModel.getNewWeatherData(city)
+                }.value
         if (newWeatherData.loading == true && weatherData.loading == true){
             Column(
                 Modifier.fillMaxSize(),
@@ -85,7 +100,8 @@ fun MainScreen(
             ){ CircularProgressIndicator() }
         }
         if(newWeatherData.data == null && weatherData.data == null){
-            Column() {
+            Column(verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(text = "Not Found!")
                 Text(text = "Please check your internet")
                 Text(text = "if you are searching then check your spelling")
@@ -93,8 +109,10 @@ fun MainScreen(
         }
         else if(newWeatherData.data != null && weatherData.data != null)
         {
-            MainScaffold(weatherData.data!!, navController = navController,newWeatherData.data!!)
+            MainScaffold(weatherData.data!!, navController = navController,newWeatherData.data!!,
+            isImperial)
         }
+    }
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,13 +121,15 @@ fun MainScaffold(
     weather: Weather,
     navController: NavController,
     newWeather: NewWeather,
+    isImperial: Boolean,
 ){
-    Scaffold(topBar = {WeatherAppBar(navController = navController,
+    Scaffold(topBar = {WeatherAppBar(
+        title = weather.city.name + ",${newWeather.location.region} ${newWeather.location.country}",
         elevation = 4.dp,
-    title = weather.city.name + ",${newWeather.location.region} ${newWeather.location.country}"
+        navController = navController
     )
     }) {
-        MainContent(paddingValues = it,weather,newWeather)
+        MainContent(paddingValues = it,weather,newWeather,isImperial)
     }
 }
 
@@ -118,14 +138,13 @@ fun MainScaffold(
 fun WeatherAppBar(
     title: String = "Title",
     icon: ImageVector? = null,
-    isMainScreen : Boolean = true,
+    isMainScreen: Boolean = true,
     elevation: Dp = 0.dp,
     navController: NavController,
-    favoriteViewModel : RoomViewModel = hiltViewModel(),
-    onAddActionClicked : () -> Unit = {} ,
-    onButtonClicked : () -> Unit = {}
+    favoriteViewModel: RoomViewModel = hiltViewModel(),
+    onButtonClicked: () -> Unit = {}
 ) {
-    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+    navController.currentBackStackEntryAsState().value
     val favorite = favoriteViewModel.favList.collectAsState()
 
     val dialog = remember{
@@ -196,6 +215,7 @@ fun MainContent(
     paddingValues: PaddingValues,
     weather: Weather,
     newWeather: NewWeather,
+    isImperial: Boolean,
 ) {
    Column(modifier = Modifier
        .padding(paddingValues)
@@ -215,7 +235,10 @@ fun MainContent(
                WeatherImage(
                    "https://${newWeather.current.condition.icon}"
                )
-               Text(text = formatDecimals(newWeather.current.temp_c)+"ºC",
+               Text(text = if(!isImperial){ formatDecimals(newWeather.current.temp_c) + "ºC" }
+                   else{
+                   formatDecimals(newWeather.current.temp_f) + "ºF"
+               },
                    style = MaterialTheme.typography.displayMedium)
                Text(text = newWeather.current.condition.text, fontStyle = FontStyle.Italic)
            }
@@ -226,7 +249,6 @@ fun MainContent(
         WeekWeather(weather = weather)
    }
 }
-
 
 
 

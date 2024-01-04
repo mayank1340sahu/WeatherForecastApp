@@ -25,7 +25,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -43,9 +45,12 @@ fun FavoriteScreen(
 ) {
     val currentBackStackEntry = navController.currentBackStackEntryAsState().value
     val favorite = favoriteViewModel.favList.collectAsState()
-    Scaffold (topBar = { WeatherAppBar(navController = navController,
-        icon = Icons.Default.ArrowBack,
-        isMainScreen = false){navController.navigate(Screens.MainScreen.name+"/${weatherViewModel.cityState.value}")}}){
+    Scaffold (topBar = { WeatherAppBar(
+        title = "Favorite Screen", icon = Icons.Default.ArrowBack,
+        isMainScreen = false,
+        navController = navController
+    )
+    {navController.navigate(Screens.MainScreen.name+"/${weatherViewModel.cityState.value}")}}){
         Column(
             Modifier
                 .fillMaxSize()
@@ -61,18 +66,23 @@ fun FavoriteScreen(
                           .fillMaxWidth()
                           .padding(6.dp),
                       elevation = CardDefaults.cardElevation(6.dp),
-                      colors = CardDefaults.cardColors(Color.White)
+                      colors = CardDefaults.cardColors(Color(0xFFAA00FF))
                   ) {
                       Row(
                           Modifier.fillMaxSize(),
                           verticalAlignment = Alignment.CenterVertically,
                           horizontalArrangement = Arrangement.SpaceBetween
                       ) {
-                          Text(text = fav.city)
-                          Text(text = fav.country)
+                          Text(text = fav.city,
+                              color = Color.White,
+                              fontSize = 25.sp,
+                              fontWeight = FontWeight.Medium)
+                          Text(text = fav.country, color = Color.White,
+                              fontSize = 25.sp,
+                              fontWeight = FontWeight.Medium)
                           Icon(imageVector = Icons.Default.Delete,
                               contentDescription = "Delete",
-                              tint = MaterialTheme.colorScheme.primary,
+                              tint = MaterialTheme.colorScheme.onBackground,
                               modifier = Modifier.clickable {
                                   favoriteViewModel.deleteFavorite(Favorite(fav.city, fav.country))
                                   navController.navigate(Screens.FavouriteScreen.name)

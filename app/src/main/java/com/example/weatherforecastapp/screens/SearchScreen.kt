@@ -40,8 +40,8 @@ fun SearchScreen(navController: NavController,viewModel: WeatherViewModel) {
    Surface(Modifier.fillMaxSize()) {
         Scaffold(topBar = {
             WeatherAppBar(
-                navController = navController,
-                title = "Search", icon = Icons.Default.ArrowBack, isMainScreen = false
+                title = "Search",
+                icon = Icons.Default.ArrowBack, isMainScreen = false, navController = navController
             )
         }) {
             SearchBar(paddingValues = it, onSearch = { city ->

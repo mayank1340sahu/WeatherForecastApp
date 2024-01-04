@@ -19,9 +19,11 @@ import com.example.weatherforecastapp.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(navController: NavHostController) {
-    Scaffold (topBar = { WeatherAppBar(navController = navController,
+    Scaffold (topBar = { WeatherAppBar(
         icon = Icons.Default.ArrowBack,
-    isMainScreen = false){navController.popBackStack()}}){
+        isMainScreen = false,
+        navController = navController
+    ){navController.popBackStack()}}){
         Column(
             Modifier
                 .fillMaxSize()

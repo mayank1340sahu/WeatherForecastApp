@@ -5,13 +5,14 @@ import com.example.weatherforecastapp.model.Weather
 import com.example.weatherforecastapp.network.NewWeatherApi
 import com.example.weatherforecastapp.network.WeatherApi
 import com.example.weatherforecastapp.newModel.NewWeather
+import com.example.weatherforecastapp.room.Unit
 import javax.inject.Inject
 
 class WeatherRepository @Inject constructor(private val api : WeatherApi,private val newApi: NewWeatherApi) {
 
-    suspend fun getWeather(cityQuery: String) : DataOrException<Weather, Boolean, Exception> {
+    suspend fun getWeather(cityQuery: String, unit: String) : DataOrException<Weather, Boolean, Exception> {
         val response = try {
-            api.getWeather(query = cityQuery)
+            api.getWeather(query = cityQuery,units =unit)
         }
         catch (e : Exception){
             Log.d("Exception", "getWeather: $e")

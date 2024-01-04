@@ -17,8 +17,11 @@ fun formatDay(dat : Int): String {
     val date = Date(dat.toLong()*1000)
     return pattern.format(date)
 }
-fun formatTemp(K:Double): Double {
-return K-273.15
+fun formatTempF(K:Double): Double {
+return ((9/5)*(K - 273.15))+32
+}
+fun formatTempC(K:Double): Double {
+    return K-273.15
 }
 
 fun formatTime(dat: Int): String {

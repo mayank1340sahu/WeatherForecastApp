@@ -17,21 +17,27 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.weatherforecastapp.R
 import com.example.weatherforecastapp.model.Weather
 import com.example.weatherforecastapp.model.WeatherItem
+import com.example.weatherforecastapp.room.Unit
+import com.example.weatherforecastapp.room.UnitViewModel
 import com.example.weatherforecastapp.utils.formatDay
 import com.example.weatherforecastapp.utils.formatDecimals
-import com.example.weatherforecastapp.utils.formatTemp
+import com.example.weatherforecastapp.utils.formatTempC
+import com.example.weatherforecastapp.utils.formatTempF
 
 @Composable
 fun WeekWeather(weather: Weather) {
+    val unitViewModel = hiltViewModel<UnitViewModel>()
+    val units = unitViewModel.unitList.collectAsState().value
     Row(Modifier.fillMaxWidth(),Arrangement.Center) {
         Text(text = "This Week")
     }
@@ -39,14 +45,14 @@ fun WeekWeather(weather: Weather) {
     LazyColumn(content ={
         items(weather.list){
             if (weather.list.indexOf(it) != 0){
-                DayWeather(weather = it)
+                DayWeather(weather = it,units)
             }
         }
     } )
 }
 
 @Composable
-fun DayWeather(weather: WeatherItem) {
+fun DayWeather(weather: WeatherItem, units: List<Unit>) {
 
     Card(
         modifier = Modifier
@@ -138,11 +144,18 @@ fun DayWeather(weather: WeatherItem) {
                     .border(shape = RoundedCornerShape(23.dp), width = 1.dp, color = Color.Yellow),
                 style = MaterialTheme.typography.bodyMedium,
             )
-            Text(text = "${formatDecimals(formatTemp(weather.temp.max))}ºC",
+            Text(text =
+               if (units[0].unit == "imperial"){ "${formatDecimals(formatTempF(weather.temp.max))}ºF" }
+               else {
+                   "${formatDecimals(formatTempC(weather.temp.max))}ºC"
+               },
                 style = MaterialTheme.typography.bodyMedium,
             color = Color.Blue)
 
-            Text(text = "${formatDecimals(formatTemp(weather.temp.min))}ºC",
+            Text(text =  if (units[0].unit == "imperial"){ "${formatDecimals(formatTempF(weather.temp.min))}ºF" }
+            else {
+                "${formatDecimals(formatTempC(weather.temp.min))}ºC"
+            },
                 style = MaterialTheme.typography.bodyMedium,
             color = Color.DarkGray,
             modifier = Modifier.padding(3.dp))

@@ -15,4 +15,16 @@ class RoomRepository @Inject constructor(private val weatherDao: WeatherDao ) {
     suspend fun deleteFavorite(favorite: Favorite) = weatherDao.delete(favorite = favorite)
 
     suspend fun deleteAll() = weatherDao.deleteAll()
+    //Unit Repo
+
+    fun getUnits() = weatherDao.getUnits()
+
+    suspend fun addUnit(unit: Unit) = weatherDao.insertUnit(unit)
+
+    suspend fun updateUnit(unit: Unit) = weatherDao.updateFavorite(unit)
+
+    suspend fun deleteUnit(unit: Unit) = weatherDao.deleteUnit(unit)
+
+    suspend fun deleteAllUnit() = weatherDao.deleteAllUnit()
+
 }
